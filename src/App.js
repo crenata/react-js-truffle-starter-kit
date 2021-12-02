@@ -122,7 +122,7 @@ class App extends PureComponent {
         });
     }
 
-    loadBEP20Token() {
+    /*loadBEP20Token() {
         const token = TruffleContract(BEP20Token);
         token.setProvider(this.state.web3.currentProvider);
         this.setState({
@@ -140,7 +140,7 @@ class App extends PureComponent {
                 console.error(error);
             }).finally(() => {});
         });
-    }
+    }*/
 
     render() {
         return (
