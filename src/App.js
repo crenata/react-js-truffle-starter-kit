@@ -14,6 +14,7 @@ class App extends PureComponent {
         this.initialState = {
             loading: true,
             web3: null,
+            newBlockHeadersSubscription: null,
             account: "",
             primaryBalance: 0,
             loadWeb3: () => false
@@ -40,8 +41,7 @@ class App extends PureComponent {
                 }, () => {
                     window.ethereum.request({method: "eth_requestAccounts"}).then((accounts) => {
                         this.getAccounts(accounts);
-                        this.listenAccountChanges();
-                        this.listenChainChanges();
+                        this.getListeners();
                     }).catch((error) => {
                         this.errorGettingAccounts();
                     }).finally(() => {});
@@ -54,6 +54,7 @@ class App extends PureComponent {
                     if (!IsEmpty(window.ethereum)) {
                         window.ethereum.enable().then((accounts) => {
                             this.getAccounts(accounts);
+                            this.getListeners();
                         }).catch((error) => {
                             this.errorGettingAccounts();
                         }).finally(() => {});
@@ -70,23 +71,27 @@ class App extends PureComponent {
             this.setState({
                 account: accounts[0]
             }, () => {
-                this.state.web3.eth.getBalance(this.state.account).then((balance) => {
-                    this.setState({
-                        primaryBalance: balance
-                    }, () => {
-                        this.getBlockchainData();
-                    });
-                }).catch((error) => {
-                    console.error(error);
-                }).finally(() => {
-                    this.setLoading(false);
-                });
+                this.getPrimaryBalance();
             });
         } else {
             this.setState({
                 ...this.initialState
             });
         }
+    }
+
+    getPrimaryBalance() {
+        this.state.web3.eth.getBalance(this.state.account).then((balance) => {
+            this.setState({
+                primaryBalance: balance
+            }, () => {
+                this.getBlockchainData();
+            });
+        }).catch((error) => {
+            console.error(error);
+        }).finally(() => {
+            this.setLoading(false);
+        });
     }
 
     listenAccountChanges() {
@@ -105,9 +110,34 @@ class App extends PureComponent {
         }
     }
 
+    listenNewBlockHeaders() {
+        let newBlockHeadersSubscription = this.state.web3.eth.subscribe("newBlockHeaders", (error, blockHeader) => {
+            if (IsEmpty(error)) {
+                this.getPrimaryBalance();
+            } else {
+                console.error(error);
+            }
+        }).on("connected", (subscriptionId) => {
+            //
+        }).on("data", (data) => {
+            //
+        }).on("error", (error) => {
+            console.error(error);
+        });
+        this.setState({
+            newBlockHeadersSubscription: newBlockHeadersSubscription
+        });
+    }
+
     errorGettingAccounts() {
         console.error("Error getting account.");
         this.setLoading(false);
+    }
+
+    getListeners() {
+        this.listenAccountChanges();
+        this.listenChainChanges();
+        this.listenNewBlockHeaders();
     }
 
     getBlockchainData() {
