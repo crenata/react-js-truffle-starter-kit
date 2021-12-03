@@ -4,6 +4,7 @@ import Web3 from "web3";
 import TruffleContract from "@truffle/contract";
 import Web3Context from "./contexts/Web3Context";
 import IsEmpty from "./helpers/IsEmpty";
+import ErrorNotDeployed from "./helpers/errors/ErrorNotDeployed";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min";
@@ -167,7 +168,7 @@ class App extends PureComponent {
                     console.error(error);
                 }).finally(() => {});
             }).catch((error) => {
-                console.error(error);
+                ErrorNotDeployed(this.state.bep20Token, error);
             }).finally(() => {});
         });
     }*/
