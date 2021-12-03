@@ -82,17 +82,19 @@ class App extends PureComponent {
     }
 
     getPrimaryBalance() {
-        this.state.web3.eth.getBalance(this.state.account).then((balance) => {
-            this.setState({
-                primaryBalance: balance
-            }, () => {
-                this.getBlockchainData();
+        if (!IsEmpty(this.state.account)) {
+            this.state.web3.eth.getBalance(this.state.account).then((balance) => {
+                this.setState({
+                    primaryBalance: balance
+                }, () => {
+                    this.getBlockchainData();
+                });
+            }).catch((error) => {
+                console.error(error);
+            }).finally(() => {
+                this.setLoading(false);
             });
-        }).catch((error) => {
-            console.error(error);
-        }).finally(() => {
-            this.setLoading(false);
-        });
+        }
     }
 
     listenAccountChanges() {
