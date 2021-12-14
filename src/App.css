@@ -1,13 +1,15 @@
 @import url("fonts/Dancing-Script/DancingScript.css");
 @import url("fonts/Great-Vibes/GreatVibes.css");
+@import url("fonts/Merienda/Merienda.css");
 @import url("fonts/Roboto-Slab/RobotoSlab.css");
 
 .app {
-    font-family: "Roboto Slab", serif;
+    font-family: "Merienda", cursive;
     min-height: 100vh;
 }
 .app-content {
-    min-height: calc(100vh - 4rem);
+    height: calc(100vh - 4rem);
+    overflow: auto;
 }
 
 .font-family-dancing-script {
@@ -46,6 +48,21 @@
     50% {
         border-color: transparent;
     }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: #F5F5F5;
+}
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: rgb(14, 12, 54);
+    background: linear-gradient(45deg, rgba(14, 12, 54, 1) 0%, rgba(40, 130, 184, 1) 100%);
 }
 
 .bgc-1F1E30 {
