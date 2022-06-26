@@ -1,0 +1,6 @@
+#!/bin/sh
+npm i --save-dev react-app-rewired crypto-browserify stream-browserify assert stream-http https-browserify os-browserify url buffer process path-browserify
+
+cp -rf config-overrides.js ../
+
+sed -i 's+react-scripts+react-app-rewired+g' package.json
