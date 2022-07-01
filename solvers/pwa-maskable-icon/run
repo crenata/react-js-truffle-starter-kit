@@ -1,0 +1,2 @@
+#!/bin/sh
+sed -i 's+"src"+"purpose": "any maskable",\n"src"+g' ../../public/manifest.json
