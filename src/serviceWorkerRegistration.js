@@ -96,7 +96,13 @@ export const register = (config) => {
 export const unregister = () => {
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.ready.then((registration) => {
-			registration.unregister();
+			registration.unregister().then(() => {
+				//
+			}).catch((error) => {
+				console.error(error);
+			}).finally(() => {
+				//
+			});
 		}).catch((error) => {
 			console.error(error);
 		}).finally(() => {
