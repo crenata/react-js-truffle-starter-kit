@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react";
 import {BrowserRouter, Routes, Route, Outlet, Link} from "react-router-dom";
+import Config from "./configs/Config";
 import RouteElement from "./helpers/RouteElement";
-import Config from "./helpers/Config";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 

@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react";
 import {Link} from "react-router-dom";
 import Identicon from "identicon.js";
-import Config from "../helpers/Config";
+import Config from "../configs/Config";
 import Web3Context from "../contexts/Web3Context";
 import logo from "../images/logo.svg";
 import IsEmpty from "../helpers/IsEmpty";
