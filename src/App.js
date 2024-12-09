@@ -18,18 +18,41 @@ class App extends PureComponent {
             newBlockHeadersSubscription: null,
             account: "",
             primaryBalance: 0,
-            loadWeb3: () => false
+            token: null,
+            tokenSupply: 0,
+            symbol: "",
+            decimals: 0,
+            balance: 0,
+            loadWeb3: () => false,
+            getPrimaryBalance: () => false
         };
         this.state = {
             ...this.initialState
         };
         this.loadWeb3 = this.loadWeb3.bind(this);
+        this.getPrimaryBalance = this.getPrimaryBalance.bind(this);
     }
 
     componentDidMount() {
         this.setState({
-            loadWeb3: this.loadWeb3
-        }, () => this.loadWeb3());
+            loadWeb3: this.loadWeb3,
+            getPrimaryBalance: this.getPrimaryBalance
+        }, () => {
+            this.loadWeb3();
+        });
+    }
+
+    setLoading(value, callback) {
+        this.setState({
+            loading: value
+        }, () => {
+            if (!IsEmpty(callback) && typeof callback === "function") callback();
+        });
+    }
+
+    initAccounts(accounts) {
+        this.getAccounts(accounts);
+        this.getListeners();
     }
 
     loadWeb3() {
@@ -41,8 +64,7 @@ class App extends PureComponent {
                     web3: web3
                 }, () => {
                     window.ethereum.request({method: "eth_requestAccounts"}).then((accounts) => {
-                        this.getAccounts(accounts);
-                        this.getListeners();
+                        this.initAccounts(accounts);
                     }).catch((error) => {
                         this.errorGettingAccounts();
                     }).finally(() => {});
@@ -54,15 +76,14 @@ class App extends PureComponent {
                 }, () => {
                     if (!IsEmpty(window.ethereum)) {
                         window.ethereum.enable().then((accounts) => {
-                            this.getAccounts(accounts);
-                            this.getListeners();
+                            this.initAccounts(accounts);
                         }).catch((error) => {
                             this.errorGettingAccounts();
                         }).finally(() => {});
                     }
                 });
             } else {
-                window.alert("Non-Ethereum browser detected. You should consider tyring Metamask!");
+                window.alert("Non-EVM browser detected. You should consider tyring Metamask!");
             }
         });
     }
@@ -74,23 +95,19 @@ class App extends PureComponent {
             }, () => {
                 this.getPrimaryBalance();
             });
-        } else {
-            this.setState({
-                ...this.initialState
-            });
         }
     }
 
     getPrimaryBalance() {
         if (!IsEmpty(this.state.account)) {
-            this.state.web3.eth.getBalance(this.state.account).then((balance) => {
+            this.state.web3.eth.getBalance(this.state.account).then((value) => {
                 this.setState({
-                    primaryBalance: balance
+                    primaryBalance: this.state.web3.utils.fromWei(value, "ether")
                 }, () => {
                     this.getBlockchainData();
                 });
             }).catch((error) => {
-                console.error(error);
+                console.error("Failed fetch BNB balance.");
             }).finally(() => {
                 this.setLoading(false);
             });
@@ -114,66 +131,86 @@ class App extends PureComponent {
     }
 
     listenNewBlockHeaders() {
-        let newBlockHeadersSubscription = this.state.web3.eth.subscribe("newBlockHeaders", (error, blockHeader) => {
-            if (IsEmpty(error)) {
-                this.getPrimaryBalance();
-            } else {
-                console.error(error);
-            }
-        }).on("connected", (subscriptionId) => {
-            //
-        }).on("data", (data) => {
-            //
-        }).on("error", (error) => {
-            console.error(error);
-        });
-        this.setState({
-            newBlockHeadersSubscription: newBlockHeadersSubscription
-        });
+        if (!IsEmpty(this.state.web3)) {
+            let newBlockHeadersSubscription = this.state.web3.eth.subscribe("newBlockHeaders", (error, blockHeader) => {
+                if (IsEmpty(error)) {
+                    this.getPrimaryBalance();
+                } else {
+                    console.error("Block Headers Subscription Error.", error);
+                }
+            }).on("connected", (subscriptionId) => {
+                console.info("Block Headers Subscription Connected :", subscriptionId);
+            }).on("data", (data) => {
+                console.info("Block Headers Subscription Data :", data);
+            }).on("error", (error) => {
+                console.error("Block Headers Subscription Error :", error);
+            });
+            this.setState({
+                newBlockHeadersSubscription: newBlockHeadersSubscription
+            });
+        }
     }
 
     errorGettingAccounts() {
-        console.error("Error getting account.");
+        console.error("Not connected account.");
         this.setLoading(false);
     }
 
     getListeners() {
         this.listenAccountChanges();
         this.listenChainChanges();
-        this.listenNewBlockHeaders();
+        // this.listenNewBlockHeaders();
     }
 
     getBlockchainData() {
-        // this.loadBEP20Token();
+        this.loadToken();
     }
 
-    setLoading(value, callback) {
-        this.setState({
-            loading: value
-        }, () => {
-            if (!IsEmpty(callback) && typeof callback === "function") callback();
-        });
-    }
-
-    /*loadBEP20Token() {
-        const token = TruffleContract(BEP20Token);
-        token.setProvider(this.state.web3.currentProvider);
-        this.setState({
-            bep20Token: token
-        }, () => {
-            this.state.bep20Token.deployed().then((data) => {
-                data.balanceOf(this.state.account).then((result) => {
-                    this.setState({
-                        bep20Balance: result
-                    });
-                }).catch((error) => {
-                    console.error(error);
-                }).finally(() => {});
+    loadToken() {
+        if (!IsEmpty(this.state.web3)) {
+            const token = TruffleContract(Token);
+            token.setProvider(this.state.web3.currentProvider);
+            token.deployed().then((data) => {
+                this.setState({
+                    token: data
+                }, () => {
+                    this.state.token.balanceOf(this.state.account).then((value) => {
+                        this.setState({
+                            balance: this.state.web3.utils.fromWei(value, "ether")
+                        }, () => {
+                            this.state.token.totalSupply().then((value) => {
+                                this.setState({
+                                    tokenSupply: this.state.web3.utils.fromWei(value, "ether")
+                                }, () => {
+                                    this.state.token.symbol().then((value) => {
+                                        this.setState({
+                                            symbol: value
+                                        }, () => {
+                                            this.state.token.decimals().then((value) => {
+                                                this.setState({
+                                                    decimals: this.state.web3.utils.toNumber(value)
+                                                });
+                                            }).catch((error) => {
+                                                toast.error("Failed fetch token decimals.");
+                                            }).finally(() => {});
+                                        });
+                                    }).catch((error) => {
+                                        toast.error("Failed fetch token symbol.");
+                                    }).finally(() => {});
+                                });
+                            }).catch((error) => {
+                                toast.error("Failed fetch token supply.");
+                            }).finally(() => {});
+                        });
+                    }).catch((error) => {
+                        toast.error("Failed fetch token balance.");
+                    }).finally(() => {});
+                });
             }).catch((error) => {
-                ErrorNotDeployed(this.state.bep20Token, error);
+                ErrorNotDeployed(token, error);
             }).finally(() => {});
-        });
-    }*/
+        }
+    }
 
     render() {
         return (
