@@ -46,6 +46,19 @@ module.exports = {
             }),
             network_id: 3
         },
+        holesky: {
+            provider: () => new HDWalletProvider({
+                mnemonic: process.env.REACT_APP_MNEMONIC,
+                providerOrUrl: `https://holesky.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`
+            }),
+            network_id: 17000,
+            confirmations: 2,
+            timeoutBlocks: 200,
+            skipDryRun: true,
+            networkCheckTimeout: 9000000,
+            pollingInterval: 1800000,
+            disableConfirmationListener: true
+        },
         development: {
             host: "127.0.0.1",
             port: 7545,
@@ -112,19 +125,19 @@ module.exports = {
     /**
      * Configure your compilers
      */
-    // compilers: {
-    //     solc: {
-    // version: "0.8.10",    // Fetch exact version from solc-bin (default: truffle's version)
-    // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-    // settings: {          // See the solidity docs for advice about optimization and evmVersion
-    //  optimizer: {
-    //    enabled: false,
-    //    runs: 200
-    //  },
-    //  evmVersion: "byzantium"
-    // }
-    // }
-    // },
+    compilers: {
+        solc: {
+            version: "0.8.17",    // Fetch exact version from solc-bin (default: truffle's version)
+            // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
+            // settings: {          // See the solidity docs for advice about optimization and evmVersion
+            //     optimizer: {
+            //         enabled: false,
+            //         runs: 200
+            //     },
+            //     evmVersion: "byzantium"
+            // }
+        }
+    },
 
     /**
      * Truffle DB is currently disabled by default; to enable it, change enabled:

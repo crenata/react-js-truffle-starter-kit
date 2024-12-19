@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
-const BEP20Token = artifacts.require("BEP20Token");
-contract(BEP20Token.contractName, (accounts) => {
+const ERC20 = artifacts.require("ERC20");
+contract(ERC20.contractName, (accounts) => {
     before(async () => {
         this.owner = accounts[0];
-        this.token = await BEP20Token.deployed();
+        this.token = await ERC20.deployed();
         this.name = "Kaytrin";
         this.symbol = "KTR";
         this.decimals = 18;

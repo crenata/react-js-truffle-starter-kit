@@ -292,37 +292,80 @@ class App extends PureComponent {
                     this.state.token.balanceOf(this.state.account).then((value) => {
                         this.setState({
                             balance: this.state.web3.utils.fromWei(value, "ether")
-                        }, () => {
-                            this.state.token.totalSupply().then((value) => {
-                                this.setState({
-                                    tokenSupply: this.state.web3.utils.fromWei(value, "ether")
-                                }, () => {
-                                    this.state.token.symbol().then((value) => {
-                                        this.setState({
-                                            symbol: value
-                                        }, () => {
-                                            this.state.token.decimals().then((value) => {
-                                                this.setState({
-                                                    decimals: this.state.web3.utils.toNumber(value)
-                                                });
-                                            }).catch((error) => {
-                                                console.error("Failed fetch token decimals.");
-                                            }).finally(() => {});
-                                        });
-                                    }).catch((error) => {
-                                        console.error("Failed fetch token symbol.");
-                                    }).finally(() => {});
-                                });
-                            }).catch((error) => {
-                                console.error("Failed fetch token supply.");
-                            }).finally(() => {});
                         });
                     }).catch((error) => {
                         console.error("Failed fetch token balance.");
                     }).finally(() => {});
+
+                    this.state.token.totalSupply().then((value) => {
+                        this.setState({
+                            tokenSupply: this.state.web3.utils.fromWei(value, "ether")
+                        });
+                    }).catch((error) => {
+                        console.error("Failed fetch token supply.");
+                    }).finally(() => {});
+
+                    this.state.token.symbol().then((value) => {
+                        this.setState({
+                            symbol: value
+                        });
+                    }).catch((error) => {
+                        console.error("Failed fetch token symbol.");
+                    }).finally(() => {});
+
+                    this.state.token.decimals().then((value) => {
+                        this.setState({
+                            decimals: this.state.web3.utils.toNumber(value)
+                        });
+                    }).catch((error) => {
+                        console.error("Failed fetch token decimals.");
+                    }).finally(() => {});
+
+                    this.loadPresale();
                 });
             }).catch((error) => {
                 ErrorNotDeployed(token, error);
+            }).finally(() => {});
+        }
+    }
+
+    loadPresale() {
+        if (!IsEmpty(this.state.web3)) {
+            const presale = TruffleContract(Presale);
+            presale.setProvider(this.state.web3.currentProvider);
+            presale.deployed().then((data) => {
+                this.setState({
+                    presale: data
+                }, () => {
+                    this.state.token.balanceOf(this.state.presale.address).then((value) => {
+                        this.setState({
+                            presaleBalance: this.state.web3.utils.fromWei(value, "ether")
+                        });
+                    }).catch((error) => {
+                        console.error("Failed fetch presale balance.");
+                    }).finally(() => {});
+
+                    this.state.presale.tokenPrice().then(value => {
+                        this.setState({
+                            price: this.state.web3.utils.fromWei(value, "ether")
+                        });
+                    }).catch((error) => {
+                        console.error("Failed fetch token price.");
+                    }).finally(() => {});
+
+                    this.state.presale.tokensSold().then(value => {
+                        this.setState({
+                            sold: this.state.web3.utils.fromWei(value, "ether")
+                        });
+                    }).catch((error) => {
+                        console.error("Failed fetch tokens sold.");
+                    }).finally(() => {});
+
+                    this.loadStaking();
+                    this.presaleTransactions();
+                });
+            }).catch((error) => {
+                ErrorNotDeployed(presale, error);
             }).finally(() => {});
         }
     }

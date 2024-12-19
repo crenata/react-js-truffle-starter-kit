@@ -1,8 +1,9 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
-interface IBEP20 {
+interface IERC20 {
     /**
-     * @dev Returns the bep token owner.
+     * @dev Returns the erc token owner.
      */
     function getOwner() external view returns(address);
 

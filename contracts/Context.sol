@@ -1,4 +1,5 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
 /**
  * @dev Provides information about the current execution context, including the
@@ -9,14 +10,8 @@ pragma solidity ^0.5.16;
  *
  * This contract is only required for intermediate, library-like contracts.
  */
-contract Context {
-    /**
-     * @dev Empty internal constructor, to prevent people from mistakenly deploying
-     * an instance of this contract, which should be used via inheritance.
-     */
-    constructor() internal {}
-
-    function _msgSender() internal view returns(address payable) {
+abstract contract Context {
+    function _msgSender() internal view returns(address) {
         return msg.sender;
     }
 
