@@ -1,5 +1,5 @@
 #!/bin/sh
-npm i --save-dev react-app-rewired crypto-browserify stream-browserify assert stream-http https-browserify os-browserify url buffer process path-browserify
+npm i --save-dev react-app-rewired assert stream-http url buffer process crypto-browserify stream-browserify https-browserify os-browserify path-browserify vm-browserify
 
 cp -rf config-overrides.js ../../
 
