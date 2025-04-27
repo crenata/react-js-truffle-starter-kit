@@ -5,8 +5,8 @@ import Config from "../configs/Config";
 import Web3Context from "../contexts/Web3Context";
 import logo from "../images/logo.png";
 import IsEmpty from "../helpers/IsEmpty";
-import TextNeon from "../helpers/texts/TextNeon";
-import TextGlow from "../helpers/texts/TextGlow";
+import TextNeon from "../components/texts/TextNeon";
+import TextGlow from "../components/texts/TextGlow";
 import "./Navbar.css";
 
 class Navbar extends PureComponent {
